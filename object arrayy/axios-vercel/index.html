@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <label for="priceFilter">Fiyat Aralığı</label>
+    <select id="priceFilter" onchange="filteredProducts()">
+        <option value="0-25">0-25</option>
+        <option value="26-50">26-50</option>
+        <option value="51-75">51-75</option>
+        <option value="76-100">76-100</option>
+        <option value="101-150">101-150</option>
+        <option value="151-175">151-200</option>
+        <option value="176-200">176-200</option>
+        <option value="201-250">201-250</option>
+        <option value="251-300">251-300</option>
+        <option value="0-1000">No Filter</option>
+    </select>
+
+    <table>
+        <thead>
+            <tr>
+                <td>Id</td>
+                <td>Name</td>
+                <td>Price</td>
+                <td>Stock</td>
+                <td>Delete</td>
+            </tr>
+        </thead>
+        <tbody id="productTableBody">
+            <!-- productları buraya -->
+        </tbody>
+    </table>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        const productTableBody = document.getElementById('productTableBody');
+        const priceFilter = document.getElementById('priceFilter');
+
+        const url = "https://northwind.vercel.app/api/products";
+
+        async function fetchData() {
+            const res = await axios.get(url)
+                .then((response) => {
+                    const products = response.data;
+                    products.forEach((product) => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                    <td>${product.id}</td> 
+                    <td>${product.name}</td>
+                    <td>${product.unitPrice}</td>
+                    <td>${product.unitsInStock}</td>
+                    <td><button onclick="deleteProduct(${product.id})">Delete</button></td>
+                `;
+                        productTableBody.appendChild(row);
+                    })
+                })
+                .catch((error) => {
+                    console.error('HATA:', error)
+                })
+        }
+        function filteredProducts() {
+            const selectedPriceInterval = priceFilter.value;
+            const rows = document.querySelectorAll('#productTableBody tr');
+
+            rows.forEach(row => {
+                const priceRow = row.querySelector('td:nth-child(3)');
+                const price = parseFloat(priceRow.textContent);
+                //dropdown filtrelemasyon
+                if (selectedPriceInterval === '0-25' && price >= 0 && price <= 25) {
+                    row.style.display = 'table-row'
+                } else if (selectedPriceInterval === '26-50' && price >= 26 && price <= 50) {
+                    row.style.display = 'table-row'
+                } else if (selectedPriceInterval === '51-75' && price >= 51 && price <= 75) {
+                    row.style.display = 'table-row'
+                } else if (selectedPriceInterval === '100-125' && price >= 100 && price <= 125) {
+                    row.style.display = 'table-row'
+                } else if (selectedPriceInterval === '126-150' && price >= 126 && price <= 150) {
+                    row.style.display = 'table-row'
+                } else if (selectedPriceInterval === '151-175' && price >= 151 && price <= 175) {
+                    row.style.display = 'table-row'
+                } else if (selectedPriceInterval === '176-200' && price >= 176 && price <= 200) {
+                    row.style.display = 'table-row'
+                } else if (selectedPriceInterval === '201-250' && price >= 201 && price <= 250) {
+                    row.style.display = 'table-row'
+                } else if (selectedPriceInterval === '251-300' && price >= 256 && price <= 300) {
+                    row.style.display = 'table-row'
+                } else if (selectedPriceInterval === '0-1000' && price >= 0 && price <= 1000) {
+                    row.style.display = 'table-row'
+                } else {
+                    row.style.display = 'none';
+                }
+            })
+        }
+
+        async function deleteProduct(productId) {
+            //tablodan sil
+            const tableRows = document.querySelectorAll('#productTableBody tr');
+            tableRows.forEach((row) => {
+                const idCell = row.querySelector('td:first-child');
+                if (idCell && idCell.textContent === productId.toString()) {
+                    row.remove();
+                }
+            });
+            //datadan sil
+            await axios.delete(`${url}/${productId}`)
+                .then((response)=> {
+                    console.log(`Ürün id ${productId} silindi`);
+                })
+                .catch((error) => {
+                    console.error('HATA:', error);
+                });
+        }
+
+        fetchData();
+
+    </script>
+</body>
+
+</html>
